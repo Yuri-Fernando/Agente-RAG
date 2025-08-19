@@ -1,0 +1,1601 @@
+{
+  "name": "AULA - AGENTE RAG - GGNOCODE",
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "69594314-9598-49b9-b02f-ab06ab8adb1d",
+              "name": "file_id",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        20,
+        80
+      ],
+      "id": "c7c0378c-3e80-438e-aa20-5ce2bea7c3af",
+      "name": "file_id"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $('file_id').item.json.file_id }}",
+          "mode": "id"
+        },
+        "options": {
+          "googleFileConversion": {
+            "conversion": {
+              "docsToFormat": "text/plain"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        600,
+        80
+      ],
+      "id": "7e24a4e1-e5f3-4d1f-836a-1df4861e140f",
+      "name": "Google Drive",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "iIgQHDrLHqKOmTE1",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "text",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        800,
+        80
+      ],
+      "id": "2ab4d66f-6f9d-417f-8841-5834f1b776f7",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "tableName": {
+          "__rl": true,
+          "value": "documents",
+          "mode": "list",
+          "cachedResultName": "documents"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1,
+      "position": [
+        1440,
+        -280
+      ],
+      "id": "be35d7d5-6199-4403-9047-f188bd9d704b",
+      "name": "Supabase Vector Store",
+      "credentials": {
+        "supabaseApi": {
+          "id": "kmJdrLejL7VyHsHp",
+          "name": "Projeto teste aula"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1300,
+        180
+      ],
+      "id": "f7cd264d-9866-4f99-8e8b-cc15be0466be",
+      "name": "Embeddings OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "f4Q2C3Mh4BvE9kaN",
+          "name": "GG NOCODE - AULAS"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonMode": "expressionData",
+        "jsonData": "={{ $json.data }}",
+        "options": {
+          "metadata": {
+            "metadataValues": [
+              {
+                "name": "file_id",
+                "value": "={{ $('file_id').item.json.file_id }}"
+              }
+            ]
+          }
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1,
+      "position": [
+        1660,
+        180
+      ],
+      "id": "d642636f-f7cb-4667-8c88-2a5576743491",
+      "name": "Default Data Loader"
+    },
+    {
+      "parameters": {
+        "chunkSize": 5000,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "typeVersion": 1,
+      "position": [
+        1760,
+        440
+      ],
+      "id": "6b06b058-8512-499e-b9c9-46611125b2cc",
+      "name": "Recursive Character Text Splitter"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "tableId": "documents",
+        "filterType": "string",
+        "filterString": "=metadata->>file_id=like.*{{ $json.file_id }}*"
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        300,
+        80
+      ],
+      "id": "46bbfef5-c2ab-40a0-8b64-b1918eded194",
+      "name": "Supabase",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "79mloBfSdzFTk96Q",
+          "name": "Supabase aula youtube"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "value": "1cQK6yAubASKl16UdjbK-S6ygoFKuyCpK",
+          "mode": "list",
+          "cachedResultName": "AULA AGENTE RAG",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1cQK6yAubASKl16UdjbK-S6ygoFKuyCpK"
+        },
+        "event": "fileCreated",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "typeVersion": 1,
+      "position": [
+        -520,
+        -120
+      ],
+      "id": "1514ae89-52f8-437a-aabe-9a7b2bc462c5",
+      "name": "Google Drive Trigger",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "iIgQHDrLHqKOmTE1",
+          "name": "Google Drive account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "value": "1cQK6yAubASKl16UdjbK-S6ygoFKuyCpK",
+          "mode": "list",
+          "cachedResultName": "AULA AGENTE RAG",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1cQK6yAubASKl16UdjbK-S6ygoFKuyCpK"
+        },
+        "event": "fileUpdated",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "typeVersion": 1,
+      "position": [
+        -520,
+        360
+      ],
+      "id": "e7efb4b3-c6f0-45d0-b489-db8de70d5a66",
+      "name": "Google Drive Trigger1",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "iIgQHDrLHqKOmTE1",
+          "name": "Google Drive account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "=Você é um assistente útil.\n\nA data de hoje é {{ $now }}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        3340,
+        -180
+      ],
+      "id": "309c43c5-c94d-4db6-9910-5ae95b2de6f7",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        2440,
+        260
+      ],
+      "id": "dfe522c6-6db9-42ae-b978-aefe5ddacfa6",
+      "name": "When chat message received",
+      "webhookId": "b86f7119-144e-4524-8817-e95529690c04"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.1,
+      "position": [
+        3060,
+        180
+      ],
+      "id": "4d56ca9b-c5d4-4404-9e2d-95da6092676f",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "f4Q2C3Mh4BvE9kaN",
+          "name": "GG NOCODE - AULAS"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 20
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        3300,
+        200
+      ],
+      "id": "7adc20c5-5c3a-4ee4-9d3a-732edb26fd84",
+      "name": "Window Buffer Memory"
+    },
+    {
+      "parameters": {
+        "name": "user_documents",
+        "description": "Contém todos os documentos do usuário. Você pode checar os documentos para responder"
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolVectorStore",
+      "typeVersion": 1,
+      "position": [
+        3620,
+        20
+      ],
+      "id": "8eb47302-1145-4f64-b58b-dc67ed474cb1",
+      "name": "Answer questions with a vector store"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.1,
+      "position": [
+        3960,
+        220
+      ],
+      "id": "cd6afb38-8bad-4580-a145-3c823f912ca1",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "f4Q2C3Mh4BvE9kaN",
+          "name": "GG NOCODE - AULAS"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableName": {
+          "__rl": true,
+          "value": "documents",
+          "mode": "list",
+          "cachedResultName": "documents"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1,
+      "position": [
+        3560,
+        240
+      ],
+      "id": "6604d10c-be1d-41d4-a7f0-a7751f14957a",
+      "name": "Supabase Vector Store1",
+      "credentials": {
+        "supabaseApi": {
+          "id": "kmJdrLejL7VyHsHp",
+          "name": "Projeto teste aula"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        3680,
+        460
+      ],
+      "id": "5d681bc0-677b-4234-a597-add843e79cb4",
+      "name": "Embeddings OpenAI1",
+      "credentials": {
+        "openAiApi": {
+          "id": "f4Q2C3Mh4BvE9kaN",
+          "name": "GG NOCODE - AULAS"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "path": "357d2e6e-4a61-4ccb-b70e-ef4adf4c77fd",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        2460,
+        -160
+      ],
+      "id": "050448b6-b9f0-44f0-8f4e-3fbc4bc633d9",
+      "name": "Webhook",
+      "webhookId": "357d2e6e-4a61-4ccb-b70e-ef4adf4c77fd",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "content": "# BASE DE CONHECIMENTO RAG",
+        "height": 1100,
+        "width": 2760,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -740,
+        -460
+      ],
+      "typeVersion": 1,
+      "id": "9fef0faa-8b5d-4dd9-ab34-9c8b6c6ad68b",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "# AGENTE PARA INTERAGIR COM A RAG",
+        "height": 1040,
+        "width": 2060,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2300,
+        -440
+      ],
+      "typeVersion": 1,
+      "id": "22d7a295-6e17-4f35-9d46-f0a9a9b8ae13",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Arquivos criados no Drive\n### Está desativado no template mas você DEVE ATIVAR E SELECIONAR O INTERVALO DO EVENTO EM minutos, horas, dias ou semanas.",
+        "height": 380,
+        "width": 400
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -640,
+        -300
+      ],
+      "typeVersion": 1,
+      "id": "63bc1c4e-d9e7-46b4-87a6-1afae5faba6e",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "## Arquivos atualizados no Drive\n### Está desativado no template mas você DEVE ATIVAR E SELECIONAR O INTERVALO DO EVENTO EM minutos, horas, dias ou semanas.",
+        "height": 380,
+        "width": 400
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -640,
+        180
+      ],
+      "typeVersion": 1,
+      "id": "5ec86baf-ef11-4a42-ad28-ded57d7682a2",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "### Extrai id do arquivo",
+        "height": 260,
+        "width": 220,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -40,
+        0
+      ],
+      "typeVersion": 1,
+      "id": "a9ad1c7f-e343-4818-89f7-b98f62818c3f",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "### Deleta do supabase para não duplicar",
+        "height": 260,
+        "width": 220,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        240,
+        0
+      ],
+      "typeVersion": 1,
+      "id": "de9660f6-a38a-4816-9201-cbbfc389ddad",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "content": "### Baixar e Extrair conteúdo do documento",
+        "height": 260,
+        "width": 480,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        520,
+        0
+      ],
+      "typeVersion": 1,
+      "id": "eafb93d1-efc0-4463-8523-8f3bdb2be40f",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "content": "### Modelo de IA",
+        "height": 240,
+        "width": 200,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1240,
+        100
+      ],
+      "typeVersion": 1,
+      "id": "cd6b290d-fe96-4e86-a1ef-3e4e36b1ad32",
+      "name": "Sticky Note7"
+    },
+    {
+      "parameters": {
+        "content": "### Adicionar metadado do \"file_id\" na Vector Store",
+        "height": 240,
+        "width": 340,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1620,
+        100
+      ],
+      "typeVersion": 1,
+      "id": "26c99782-b002-47a4-b52e-76d7e7f1ff5b",
+      "name": "Sticky Note8"
+    },
+    {
+      "parameters": {
+        "content": "# AGENTE DE IA DO TELEGRAM PARA REALIZAR AGENDAMENTOS",
+        "height": 1420,
+        "width": 4460,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -980,
+        860
+      ],
+      "typeVersion": 1,
+      "id": "f49cea5c-1586-4b6c-add0-c396a64d519b",
+      "name": "Sticky Note9"
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -800,
+        1440
+      ],
+      "id": "4931b790-0a68-4d6e-91b0-c9de0c7531ce",
+      "name": "Telegram Trigger",
+      "webhookId": "3112d5f1-0f56-47de-a6c2-118640511621",
+      "credentials": {
+        "telegramApi": {
+          "id": "U83hvULQ6L3IJfo3",
+          "name": "Telegram - aula agente rag"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.message.text }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Texto"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "b21a4b20-0d53-4500-95c4-ebb29aa7823f",
+                    "leftValue": "={{ $json.message.voice.file_id }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Áudio"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "f01b0c53-0531-4f8a-9ae5-629969593dc3",
+                    "leftValue": "={{ $json.message.photo[0].file_id }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Imagem"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -600,
+        1420
+      ],
+      "id": "4fc3e415-8947-45c3-a3db-fc5deef6ed37",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cacf4857-27e1-453d-aa1f-5fee889bc07c",
+              "name": "text",
+              "value": "={{ $json.message.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        720,
+        1040
+      ],
+      "id": "b52d3355-7925-42d9-9c43-a89f73d478a0",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $item(\"0\").$node[\"Telegram Trigger\"].json[\"message\"][\"voice\"][\"file_id\"] }}"
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        500,
+        1380
+      ],
+      "id": "69ebbdb6-8e7c-4e4c-a15b-6d485a7c6ac7",
+      "name": "Telegram",
+      "credentials": {
+        "telegramApi": {
+          "id": "U83hvULQ6L3IJfo3",
+          "name": "Telegram - aula agente rag"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        920,
+        1380
+      ],
+      "id": "2505bc16-d723-4a0b-bf3f-e1aacb6adb7d",
+      "name": "OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "f4Q2C3Mh4BvE9kaN",
+          "name": "GG NOCODE - AULAS"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a6372787-ec9c-41f1-9e15-0f0b9ce951fa",
+              "name": "image_file_id",
+              "value": "={{ $json.message.photo[0].file_id }}",
+              "type": "string"
+            },
+            {
+              "id": "f854e868-a85d-419a-b33c-116a73e6ebef",
+              "name": "caption",
+              "value": "={{ $json.message.caption }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        80,
+        1700
+      ],
+      "id": "69ffeee8-8458-4de2-b3c4-4970d93c36a4",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.image_file_id }}"
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        340,
+        1700
+      ],
+      "id": "d1d774ce-12f9-427b-9003-18b510bed960",
+      "name": "Telegram1",
+      "credentials": {
+        "telegramApi": {
+          "id": "U83hvULQ6L3IJfo3",
+          "name": "Telegram - aula agente rag"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "binaryToPropery",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        580,
+        1700
+      ],
+      "id": "8e599c38-49f9-45c5-85f9-035e6cca4c39",
+      "name": "Extract from File1"
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "data",
+        "options": {
+          "fileName": "={{ $('Telegram1').item.json.result.file_path }}"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        840,
+        1700
+      ],
+      "id": "ff4aa215-3dd3-4948-b6f0-8ea84f0c1675",
+      "name": "Convert to File"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "text": "Analise essa imagem para mim",
+        "inputType": "base64",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        1080,
+        1700
+      ],
+      "id": "0160ab0b-d491-4a02-b6c6-55e20dd3d142",
+      "name": "OpenAI1",
+      "credentials": {
+        "openAiApi": {
+          "id": "f4Q2C3Mh4BvE9kaN",
+          "name": "GG NOCODE - AULAS"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ada205d8-55d5-40a4-8d1c-3225ee8be0cf",
+              "name": "text",
+              "value": "={{ $json.content }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1340,
+        1700
+      ],
+      "id": "1a355482-3b34-4c6a-9a7f-6837255412a7",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $item(\"0\").$node[\"Telegram Trigger\"].json[\"message\"][\"chat\"][\"id\"] }}",
+        "text": "Não foi possível entender a mensagem",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        60,
+        2080
+      ],
+      "id": "3e09d63a-97fe-45b7-a584-49a5df005878",
+      "name": "Telegram2",
+      "credentials": {
+        "telegramApi": {
+          "id": "U83hvULQ6L3IJfo3",
+          "name": "Telegram - aula agente rag"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.text }}",
+        "options": {
+          "systemMessage": "=<AgentInstructions>\n    <Função>\n        <Nome>Gerenciador de Eventos</Nome>\n        <Descrição>Um agente que gerencia eventos no Google Agenda, incluindo busca, criação e atualização de eventos com base nas solicitações do usuário.</Descrição>\n        <DataAtual>{{$now.setZone(America_Sao_Paulo)}}</DataAtual>\n\n</Função>\n    <Meta>\n        <Primary>Gerenciar eventos no Google Agenda de maneira eficiente e intuitiva.</Primary>\n    </Meta>\n    <Instruções>\n        <Instrução>Buscar eventos no calendário com base na solicitação do usuário.</Instrução>\n        <Instrução>Criar eventos com base na solicitação do usuário.</Instrução>\n        <Instrução>Atualizar eventos existentes com base na solicitação do usuário.</Instrução>\n        <Instrução>Se o usuário solicitar eventos para um único dia, defina StartDate como AAAA-MM-DD 00:00:00 e EndDate como AAAA-MM-DD 23:59:59.</Instrução>\n        <Instrução>Se o usuário solicitar eventos para um intervalo de datas, defina StartDate como o primeiro dia às 00:00:00 e EndDate como o último dia às 23:59:59.</Instrução>\n        <Instrução>Verifique a disponibilidade antes de criar um novo evento e informe o usuário se houver conflitos.</Instrução>\n        <Instrução>Solicite ao usuário informações essenciais para eventos, como horário, a duração, e o título do evento.</Instrução>\n<Instrução>Solicite ao usuário informações opcionais para eventos, participantes e descrição.</Instrução>\n        <Instrução>Confirme cada alteração ou criação de evento com o usuário antes de salvar.</Instrução>\n        <Instrução> Se o usuário quiser atualizar um evento pesquise os eventos do google agenda antes para achar os eventos correspondentes e preencha o eventID.<Instrução>\n    </Instruções>\n    <Ferramentas>\n        <Ferramenta>Buscar eventos</Ferramenta>\n        <Ferramenta>Atualizar eventos</Ferramenta>\n        <Ferramenta>Criar eventos</Ferramenta>\n        <Ferramenta>Enviar emails quando o cliente solicitar</Ferramenta>\n    </Ferramentas>\n</AgentInstructions>\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        2320,
+        1300
+      ],
+      "id": "3041e070-abdd-44d9-82ec-bbb859d7695e",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1980,
+        1840
+      ],
+      "id": "a64e5f83-dd75-4910-b73c-cf173316ac57",
+      "name": "OpenAI Chat Model2",
+      "credentials": {
+        "openAiApi": {
+          "id": "f4Q2C3Mh4BvE9kaN",
+          "name": "GG NOCODE - AULAS"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "contextWindowLength": 15
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        2120,
+        1900
+      ],
+      "id": "8819cfc1-8457-4cce-84bf-6e34eafdd71d",
+      "name": "Window Buffer Memory1"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $item(\"0\").$node[\"Telegram Trigger\"].json[\"message\"][\"chat\"][\"id\"] }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        3040,
+        1320
+      ],
+      "id": "c8579ef1-4ce6-4526-9628-5da1a4fd9d43",
+      "name": "Telegram3",
+      "credentials": {
+        "telegramApi": {
+          "id": "U83hvULQ6L3IJfo3",
+          "name": "Telegram - aula agente rag"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Busque os eventos na agenda do Google",
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "germanoletti@gmail.com",
+          "mode": "list",
+          "cachedResultName": "gl"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        2340,
+        1860
+      ],
+      "id": "65b67c33-8f65-4615-91be-08e6b79f163c",
+      "name": "Google Calendar",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "ODA5ARpEF8gqy9wx",
+          "name": "Google Calendar - ggnocode"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Criar um evento na minha agenda ou calendário do Google",
+        "calendar": {
+          "__rl": true,
+          "value": "germanoletti@gmail.com",
+          "mode": "list",
+          "cachedResultName": "gl"
+        },
+        "start": "={{ $fromAI('StartDate', 'a hora de inicio e o dia do evento que esta sendo marcado') }}",
+        "end": "={{ $fromAI('EndDate', 'a hora de fim e o dia do evento que esta sendo marcado') }}",
+        "additionalFields": {
+          "summary": "={{ $fromAI('eventName', 'o nome do evento que vai ser criado') }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        2540,
+        1860
+      ],
+      "id": "5847262b-7a87-444b-8a0b-6378029c9d20",
+      "name": "Criar eventos",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "ODA5ARpEF8gqy9wx",
+          "name": "Google Calendar - ggnocode"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Fazer atualizações nos eventos da agenda",
+        "operation": "update",
+        "calendar": {
+          "__rl": true,
+          "value": "germanoletti@gmail.com",
+          "mode": "list",
+          "cachedResultName": "gl"
+        },
+        "eventId": "={{ $fromAI('eventID', 'o ID do evento que precisa ser atualizado') }}",
+        "updateFields": {
+          "description": "={{ $fromAI('eventDescription', 'A nova descrição do evento') }}",
+          "end": "={{ $fromAI('EndDate', 'a hora de fim e o dia do evento que esta sendo marcado') }}",
+          "start": "={{ $fromAI('StartDate', 'a hora de inicio e o dia do evento que esta sendo marcado') }}",
+          "summary": "={{ $fromAI('eventName', 'o nome do evento que vai ser criado') }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        2820,
+        1780
+      ],
+      "id": "fef2bfe2-da1c-416f-b962-508c9f2e8ebd",
+      "name": "Atualizar eventos",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "ODA5ARpEF8gqy9wx",
+          "name": "Google Calendar - ggnocode"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Webhook\n### Está desativado no template mas vamos ativar ele no decorrer das aulas",
+        "height": 320,
+        "width": 300,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2360,
+        -280
+      ],
+      "typeVersion": 1,
+      "id": "28054bf1-260b-4224-aef4-f419067c59e2",
+      "name": "Sticky Note10"
+    },
+    {
+      "parameters": {
+        "content": "## Chat message\n### Converse e teste a sua Vector Store Aqui",
+        "height": 320,
+        "width": 300
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2360,
+        120
+      ],
+      "typeVersion": 1,
+      "id": "14fa49ea-04f4-491b-967e-cce8270788c0",
+      "name": "Sticky Note11"
+    },
+    {
+      "parameters": {
+        "content": "## Fluxo de Texto",
+        "height": 280,
+        "width": 340,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        600,
+        960
+      ],
+      "typeVersion": 1,
+      "id": "7f0512cb-0d1f-4cd3-89de-5655bdd8e832",
+      "name": "Sticky Note12"
+    },
+    {
+      "parameters": {
+        "content": "## Fluxo de Áudio",
+        "height": 240,
+        "width": 820,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        360,
+        1320
+      ],
+      "typeVersion": 1,
+      "id": "2cc6da69-2b96-4c28-8e75-e01ead18f680",
+      "name": "Sticky Note13"
+    },
+    {
+      "parameters": {
+        "content": "## Fluxo de Imagem",
+        "height": 300,
+        "width": 1520,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        1640
+      ],
+      "typeVersion": 1,
+      "id": "cefc579e-1963-4189-aa47-45fd0af819eb",
+      "name": "Sticky Note14"
+    },
+    {
+      "parameters": {
+        "content": "## Fluxo de Fallback",
+        "height": 240,
+        "width": 300,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -40,
+        2000
+      ],
+      "typeVersion": 1,
+      "id": "bf75949e-aad1-47f4-a357-e3e4d525eae7",
+      "name": "Sticky Note15"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "file_id": {
+      "main": [
+        [
+          {
+            "node": "Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase": {
+      "main": [
+        [
+          {
+            "node": "Google Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive Trigger": {
+      "main": [
+        [
+          {
+            "node": "file_id",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive Trigger1": {
+      "main": [
+        [
+          {
+            "node": "file_id",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Answer questions with a vector store": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Answer questions with a vector store",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase Vector Store1": {
+      "ai_vectorStore": [
+        [
+          {
+            "node": "Answer questions with a vector store",
+            "type": "ai_vectorStore",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI1": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Supabase Vector Store1",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram": {
+      "main": [
+        [
+          {
+            "node": "OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Telegram1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram1": {
+      "main": [
+        [
+          {
+            "node": "Extract from File1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File1": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        [
+          {
+            "node": "OpenAI1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Telegram3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Calendar": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Criar eventos": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Atualizar eventos": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Sao_Paulo",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "095a8b78-dce7-4097-94b0-12ce09547aae",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0f7239325f4a744c3b1b5231c362e0db0e1b76f89fb6e99144bb28f775de25b6"
+  },
+  "id": "ImFILpYo7pkETWwd",
+  "tags": [
+    {
+      "createdAt": "2025-01-01T16:06:06.260Z",
+      "updatedAt": "2025-01-01T16:06:06.260Z",
+      "id": "Sy5xQ6uat6udb7TI",
+      "name": "GgNocode"
+    },
+    {
+      "createdAt": "2025-01-01T16:06:21.433Z",
+      "updatedAt": "2025-01-01T16:06:21.433Z",
+      "id": "m3lF1kYH6ze518Sa",
+      "name": "Aulas-GgNocode"
+    },
+    {
+      "createdAt": "2025-01-01T16:07:03.578Z",
+      "updatedAt": "2025-01-01T16:07:03.578Z",
+      "id": "Wz7qndE9gBYMKEiG",
+      "name": "share"
+    },
+    {
+      "createdAt": "2025-01-02T17:51:43.464Z",
+      "updatedAt": "2025-01-02T17:51:43.464Z",
+      "id": "GU8hlA9rvrgIEnUM",
+      "name": "Aula tamplate"
+    }
+  ]
+}
