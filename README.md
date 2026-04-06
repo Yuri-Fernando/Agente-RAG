@@ -7,7 +7,7 @@ Este projeto implementa um **Agente RAG (Retrieval-Augmented Generation)** no **
 
 ##  Funcionalidades
 
-### 1. 📂 Ingestão e Indexação de Documentos
+### 1.  Ingestão e Indexação de Documentos
 - Monitora uma pasta no **Google Drive** em busca de novos ou atualizados arquivos.
 - Remove versões antigas no **Supabase** para evitar duplicação.
 - Faz o **download e extração** do conteúdo.
@@ -91,4 +91,4 @@ Ative o workflow e comece a interagir pelo Telegram 🎉
 O fluxo foi pensado para aulas de NoCode + IA, servindo como um template completo de RAG multimodal.
 Pode ser facilmente expandido para integrar novas fontes (Notion, Slack, etc).
 
-💡 Sinta-se à vontade para contribuir com melhorias, issues ou novas ideias!
+ Sinta-se à vontade para contribuir com melhorias, issues ou novas ideias!
